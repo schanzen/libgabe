@@ -88,19 +88,23 @@ int gabe_dec( gabe_pub_t* pub, gabe_prv_t* prv,
 /*
   Exactly what it seems.
 */
-GByteArray* gabe_pub_serialize( gabe_pub_t* pub );
-GByteArray* gabe_msk_serialize( gabe_msk_t* msk );
-GByteArray* gabe_prv_serialize( gabe_prv_t* prv );
-GByteArray* gabe_cph_serialize( gabe_cph_t* cph );
+int gabe_pub_serialize( gabe_pub_t* pub,
+                        char **data);
+int gabe_msk_serialize( gabe_msk_t* msk,
+                        char **data );
+int gabe_prv_serialize( gabe_prv_t* prv,
+                        char **data );
+int gabe_cph_serialize( gabe_cph_t* cph,
+                        char **data);
 
 /*
   Also exactly what it seems. If free is true, the GByteArray passed
   in will be free'd after it is read.
 */
-gabe_pub_t* gabe_pub_unserialize( GByteArray* b, int free );
-gabe_msk_t* gabe_msk_unserialize( gabe_pub_t* pub, GByteArray* b, int free );
-gabe_prv_t* gabe_prv_unserialize( gabe_pub_t* pub, GByteArray* b, int free );
-gabe_cph_t* gabe_cph_unserialize( gabe_pub_t* pub, GByteArray* b, int free );
+gabe_pub_t* gabe_pub_unserialize( char *data, int size );
+gabe_msk_t* gabe_msk_unserialize( gabe_pub_t* pub, char *data, int size);
+gabe_prv_t* gabe_prv_unserialize( gabe_pub_t* pub, char *data, int size );
+gabe_cph_t* gabe_cph_unserialize( gabe_pub_t* pub, char *data, int size );
 
 /*
   Again, exactly what it seems.

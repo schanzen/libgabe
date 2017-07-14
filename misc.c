@@ -93,8 +93,9 @@ unserialize_string( GByteArray* b, int* offset )
 	return r;
 }
 
-GByteArray*
-gabe_pub_serialize( gabe_pub_t* pub )
+int
+gabe_pub_serialize( gabe_pub_t* pub,
+                    char **data )
 {
 	GByteArray* b;
 
@@ -104,18 +105,24 @@ gabe_pub_serialize( gabe_pub_t* pub )
 	serialize_element(b, pub->h);
 	serialize_element(b, pub->gp);
 	serialize_element(b, pub->g_hat_alpha);
-
-	return b;
+  
+  *data = g_memdup (b->data, b->len);
+	return b->len;
 }
 
 gabe_pub_t*
-gabe_pub_unserialize( GByteArray* b, int free )
+gabe_pub_unserialize( char* data, int size )
 {
 	gabe_pub_t* pub;
-	int offset;
+	guint8 *g_data;
+  GByteArray *b;
+  int offset;
 
 	pub = (gabe_pub_t*) malloc(sizeof(gabe_pub_t));
 	offset = 0;
+	g_data = g_memdup (data, size);
+  b = g_byte_array_new_take (g_data, size);
+
 
 	pub->pairing_desc = unserialize_string(b, &offset);
 	pairing_init_set_buf(pub->p, pub->pairing_desc, strlen(pub->pairing_desc));
@@ -130,47 +137,51 @@ gabe_pub_unserialize( GByteArray* b, int free )
 	unserialize_element(b, &offset, pub->gp);
 	unserialize_element(b, &offset, pub->g_hat_alpha);
 
-	if( free )
-		g_byte_array_free(b, 1);
+	g_byte_array_free(b, 1);
 
 	return pub;
 }
 
-GByteArray*
-gabe_msk_serialize( gabe_msk_t* msk )
+int
+gabe_msk_serialize( gabe_msk_t* msk,
+                    char **data )
 {
 	GByteArray* b;
 
 	b = g_byte_array_new();
 	serialize_element(b, msk->beta);
 	serialize_element(b, msk->g_alpha);
-
-	return b;
+  
+  *data = g_memdup (b->data, b->len);
+	return b->len;
 }
 
 gabe_msk_t*
-gabe_msk_unserialize( gabe_pub_t* pub, GByteArray* b, int free )
+gabe_msk_unserialize( gabe_pub_t* pub, char* data, int size )
 {
 	gabe_msk_t* msk;
 	int offset;
+  guint8 *g_data;
+  GByteArray *b;
 
 	msk = (gabe_msk_t*) malloc(sizeof(gabe_msk_t));
 	offset = 0;
 
 	element_init_Zr(msk->beta, pub->p);
 	element_init_G2(msk->g_alpha, pub->p);
+  g_data = g_memdup (data, size);
+  b = g_byte_array_new_take (g_data, size);
 
 	unserialize_element(b, &offset, msk->beta);
 	unserialize_element(b, &offset, msk->g_alpha);
 
-	if( free )
-		g_byte_array_free(b, 1);
-
+  g_byte_array_free(b, 1);
 	return msk;
 }
 
-GByteArray*
-gabe_prv_serialize( gabe_prv_t* prv )
+int
+gabe_prv_serialize( gabe_prv_t* prv,
+                    char **data )
 {
 	GByteArray* b;
 	int i;
@@ -186,20 +197,25 @@ gabe_prv_serialize( gabe_prv_t* prv )
 		serialize_element(b, g_array_index(prv->comps, gabe_prv_comp_t, i).d);
 		serialize_element(b, g_array_index(prv->comps, gabe_prv_comp_t, i).dp);
 	}
-
-	return b;
+  *data = g_memdup (b->data, b->len);
+	return b->len;
 }
 
 gabe_prv_t*
-gabe_prv_unserialize( gabe_pub_t* pub, GByteArray* b, int free )
+gabe_prv_unserialize( gabe_pub_t* pub, char* data, int size )
 {
 	gabe_prv_t* prv;
+  guint8 *g_data;
+  GByteArray *b;
 	int i;
 	int len;
 	int offset;
 
 	prv = (gabe_prv_t*) malloc(sizeof(gabe_prv_t));
 	offset = 0;
+  g_data = g_memdup (data, size);
+  b = g_byte_array_new_take (g_data, size);
+
 
 	element_init_G2(prv->d, pub->p);
 	unserialize_element(b, &offset, prv->d);
@@ -222,8 +238,7 @@ gabe_prv_unserialize( gabe_pub_t* pub, GByteArray* b, int free )
 		g_array_append_val(prv->comps, c);
 	}
 
-	if( free )
-		g_byte_array_free(b, 1);
+	g_byte_array_free(b, 1);
 
 	return prv;
 }
@@ -276,8 +291,9 @@ unserialize_policy( gabe_pub_t* pub, GByteArray* b, int* offset )
 	return p;
 }
 
-GByteArray*
-gabe_cph_serialize( gabe_cph_t* cph )
+int
+gabe_cph_serialize( gabe_cph_t* cph,
+                    char **data )
 {
 	GByteArray* b;
 
@@ -285,18 +301,23 @@ gabe_cph_serialize( gabe_cph_t* cph )
 	serialize_element(b, cph->cs);
 	serialize_element(b, cph->c);
 	serialize_policy( b, cph->p);
-
-	return b;
+  *data = g_memdup (b->data, b->len);
+	return b->len;
 }
 
 gabe_cph_t*
-gabe_cph_unserialize( gabe_pub_t* pub, GByteArray* b, int free )
+gabe_cph_unserialize( gabe_pub_t* pub, char* data, int size )
 {
 	gabe_cph_t* cph;
-	int offset;
+	guint8 *g_data;
+  GByteArray *b;
+  int offset;
 
 	cph = (gabe_cph_t*) malloc(sizeof(gabe_cph_t));
 	offset = 0;
+  g_data = g_memdup (data, size);
+  b = g_byte_array_new_take (g_data, size);
+
 
 	element_init_GT(cph->cs, pub->p);
 	element_init_G1(cph->c,  pub->p);
@@ -304,8 +325,7 @@ gabe_cph_unserialize( gabe_pub_t* pub, GByteArray* b, int free )
 	unserialize_element(b, &offset, cph->c);
 	cph->p = unserialize_policy(pub, b, &offset);
 
-	if( free )
-		g_byte_array_free(b, 1);
+  g_byte_array_free(b, 1);
 
 	return cph;
 }
