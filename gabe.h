@@ -2,6 +2,7 @@
   Include glib.h and pbc.h before including this file. Note that this
   file should be included at most once.
 */
+#include <pbc/pbc.h>
 
 #if defined (__cplusplus)
 extern "C" {
