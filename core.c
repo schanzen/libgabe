@@ -95,6 +95,7 @@ gabe_setup( gabe_pub_t** pub, gabe_msk_t** msk )
 	element_pow_zn((*msk)->g_alpha, (*pub)->gp, alpha);
 	element_pow_zn((*pub)->h, (*pub)->g, (*msk)->beta);
   pairing_apply((*pub)->g_hat_alpha, (*pub)->g, (*msk)->g_alpha, (*pub)->p);
+  element_clear (alpha);
 }
 
 gabe_prv_t* gabe_keygen( gabe_pub_t* pub,
@@ -152,7 +153,9 @@ gabe_prv_t* gabe_keygen( gabe_pub_t* pub,
 
 		g_array_append_val(prv->comps, c);
 	}
-
+  element_clear (g_r);
+  element_clear (r);
+  element_clear (beta_inv);
 	return prv;
 }
 
@@ -252,7 +255,7 @@ parse_policy_postfix( char* s )
 	root = g_ptr_array_index(stack, 0);
 
  	g_strfreev(toks);
- 	g_ptr_array_free(stack, 0);
+ 	g_ptr_array_free(stack, 1);
 
 	return root;
 }
@@ -366,7 +369,7 @@ gabe_enc( gabe_pub_t* pub, element_t m, char* policy )
 	element_pow_zn(cph->c, pub->h, s);
 
 	fill_policy(cph->p, pub, s);
-
+  element_clear (s);
 	return cph;
 }
 
@@ -749,6 +752,7 @@ gabe_dec( gabe_pub_t* pub, gabe_prv_t* prv, gabe_cph_t* cph, element_t m )
 	check_sat(cph->p, prv);
 	if( !cph->p->satisfiable )
 	{
+    element_clear (t);
 		raise_error("cannot decrypt, attributes in key do not satisfy policy\n");
 		return 0;
 	}
@@ -769,7 +773,7 @@ gabe_dec( gabe_pub_t* pub, gabe_prv_t* prv, gabe_cph_t* cph, element_t m )
 
 	pairing_apply(t, cph->c, prv->d, pub->p); /* num_pairings++; */
 	element_invert(t, t);
-	element_mul(m, m, t); /* num_muls++; */
-
+  element_mul(m, m, t); /* num_muls++; */
+  element_clear (t);
 	return 1;
 }

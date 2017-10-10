@@ -98,6 +98,7 @@ gabe_pub_serialize( gabe_pub_t* pub,
                     char **data )
 {
 	GByteArray* b;
+  int len;
 
 	b = g_byte_array_new();
 	serialize_string(b,  pub->pairing_desc);
@@ -107,7 +108,9 @@ gabe_pub_serialize( gabe_pub_t* pub,
 	serialize_element(b, pub->g_hat_alpha);
   
   *data = g_memdup (b->data, b->len);
-	return b->len;
+  len = b->len;
+  g_byte_array_free (b, TRUE);
+	return len;
 }
 
 gabe_pub_t*
@@ -147,13 +150,16 @@ gabe_msk_serialize( gabe_msk_t* msk,
                     char **data )
 {
 	GByteArray* b;
+  int len;
 
 	b = g_byte_array_new();
 	serialize_element(b, msk->beta);
 	serialize_element(b, msk->g_alpha);
   
   *data = g_memdup (b->data, b->len);
-	return b->len;
+	len = b->len;
+  g_byte_array_free (b, TRUE);
+  return len;
 }
 
 gabe_msk_t*
@@ -185,6 +191,7 @@ gabe_prv_serialize( gabe_prv_t* prv,
 {
 	GByteArray* b;
 	int i;
+  int len;
 
 	b = g_byte_array_new();
 
@@ -197,8 +204,10 @@ gabe_prv_serialize( gabe_prv_t* prv,
 		serialize_element(b, g_array_index(prv->comps, gabe_prv_comp_t, i).d);
 		serialize_element(b, g_array_index(prv->comps, gabe_prv_comp_t, i).dp);
 	}
+  len = b->len;
   *data = g_memdup (b->data, b->len);
-	return b->len;
+  g_byte_array_free (b, TRUE);
+	return len;
 }
 
 gabe_prv_t*
@@ -274,6 +283,7 @@ unserialize_policy( gabe_pub_t* pub, GByteArray* b, int* offset )
 	p->k = (int) unserialize_uint32(b, offset);
 	p->attr = 0;
 	p->children = g_ptr_array_new();
+  p->q = 0;
 
 	n = unserialize_uint32(b, offset);
 	if( n == 0 )
@@ -296,13 +306,16 @@ gabe_cph_serialize( gabe_cph_t* cph,
                     char **data )
 {
 	GByteArray* b;
+  int len;
 
 	b = g_byte_array_new();
 	serialize_element(b, cph->cs);
 	serialize_element(b, cph->c);
 	serialize_policy( b, cph->p);
   *data = g_memdup (b->data, b->len);
-	return b->len;
+  len = b->len;
+	g_byte_array_free (b, TRUE);
+  return len;
 }
 
 gabe_cph_t*
@@ -383,13 +396,18 @@ gabe_policy_free( gabe_policy_t* p )
 		element_clear(p->c);
 		element_clear(p->cp);
 	}
-
+  if (p->q)
+  {
+    for( i = 0; i < p->q->deg + 1; i++ )
+      element_clear (p->q->coef[i]);
+    free (p->q->coef);
+    free (p->q);
+  }
 	for( i = 0; i < p->children->len; i++ )
 		gabe_policy_free(g_ptr_array_index(p->children, i));
 
 	g_ptr_array_free(p->children, 1);
-
-	free(p);
+  free(p);
 }
 
 void
