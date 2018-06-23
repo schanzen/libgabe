@@ -125,7 +125,7 @@ CFLAGS="${CFLAGS} ${GMP_CFLAGS} ${PBC_CFLAGS}"
 LIBS="${LIBS} ${GMP_LIBS} ${PBC_LIBS}"
 
 AC_TRY_LINK(
-  [#include <pbc.h>],
+  [#include <pbc/pbc.h>],
   [pairing_t p; pairing_init_set_buf(p, "", 0);],
   [
     AC_MSG_RESULT(found)
