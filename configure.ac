@@ -1,6 +1,6 @@
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.61)
-AC_INIT([libgabe], [0.9], [bethenco@cs.berkeley.edu])
+AC_INIT([libgabe], [0.99], [https://github.com/schanzen/libgabe])
 AC_CONFIG_SRCDIR([gabe.h])
 
 dnl First, standard system stuff.
