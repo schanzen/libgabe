@@ -8,7 +8,7 @@
 //#include <openssl/sha.h>
 #include <gcrypt.h>
 #include <glib.h>
-#include <pbc.h>
+#include <pbc/pbc.h>
 
 #include "gabe.h"
 #include "private.h"
