@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <glib.h>
-#include <pbc.h>
+#include <pbc/pbc.h>
 
 #include "gabe.h"
 #include "private.h"
