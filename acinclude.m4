@@ -38,11 +38,14 @@ AC_TRY_LINK(
   [#include <gmp.h>],
   [mpz_t a; mpz_init (a);],
   [
-    AC_TRY_RUN(
+    AC_TRY_COMPILE(
       [
 #include <gmp.h>
-int main() { if (__GNU_MP_VERSION < 4) return -1; else return 0; }
-],
+      ], [
+#if (__GNU_MP_VERSION < 4)
+# error "min GMP version is 4.0.0"
+#endif
+      ],
       [
         AC_MSG_RESULT(found)
         AC_SUBST(GMP_CFLAGS)
