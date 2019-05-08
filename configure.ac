@@ -11,13 +11,13 @@ debug_default="no"
 AC_ARG_ENABLE(debug, [  --enable-debug=[no/yes]  turn on debugging
                           [default=$debug_default]],, enable_debug=$debug_default)
 if test "x$enable_debug" = "xyes"; then
-  CFLAGS="-g -Wall -fPIC"
-  LDFLAGS="-g -Wall"
+  CFLAGS="$CFLAGS -g -Wall -fPIC"
+  LDFLAGS="$LDFLAGS -g -Wall"
   AC_DEFINE(BSWABE_DEBUG)
   AC_MSG_RESULT(yes)
 else
-  CFLAGS="-O3 -Wall -fPIC"
-  LDFLAGS="-O3 -Wall"
+  CFLAGS="$CFLAGS -O3 -Wall -fPIC"
+  LDFLAGS="$LDFLAGS -O3 -Wall"
   AC_MSG_RESULT(no)
 fi
 AC_PROG_CC
